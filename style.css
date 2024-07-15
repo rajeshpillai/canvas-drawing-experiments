@@ -1,0 +1,21 @@
+#canvas {
+  border: 1px solid black;
+}
+
+#main {
+  display: flex;
+  flex-direction: row;
+}
+
+#toolbar-c{
+  user-select:none;
+  padding: 2px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  cursor: pointer;
+}
+
+ #toolbar-c span {
+   margin: 4px; /* Add margin around each item */
+}
