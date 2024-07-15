@@ -1,76 +1,92 @@
-const canvas = document.querySelector("#canvas");
-const ctx = canvas.getContext("2d");
-
-const width = canvas.width;
-const height = canvas.height;
-
-let isDown = false;
-let shapeType = 'rect'; // Default shape
-
-const mouse = { x: 0, y: 0 };
-let cmouse = { x: 0, y: 0 };
-
-const shapes = [];
-
-document.getElementById('line').addEventListener('click', () => shapeType = 'line');
-document.getElementById('rect').addEventListener('click', () => shapeType = 'rect');
-document.getElementById('ellipse').addEventListener('click', () => shapeType = 'ellipse');
-
-canvas.addEventListener("pointerdown", (e) => {
-  isDown = true;
-  mouse.x = e.offsetX;
-  mouse.y = e.offsetY;
-});
-
-canvas.addEventListener("pointerup", (e) => {
-  isDown = false;
-  cmouse.x = e.offsetX;
-  cmouse.y = e.offsetY;
-  addShape(shapeType);
-  drawAllShapes();
-});
-
-canvas.addEventListener("pointermove", (e) => {
-  if (isDown) {
-    cmouse.x = e.offsetX;
-    cmouse.y = e.offsetY;
-    drawAllShapes();
-    drawShape(shapeType, mouse.x, mouse.y, cmouse.x, cmouse.y);
+class Shape {
+  constructor(type, x1, y1, x2, y2) {
+    this.type = type;
+    this.x1 = x1;
+    this.y1 = y1;
+    this.x2 = x2;
+    this.y2 = y2;
   }
-});
 
-function addShape(type) {
-  const x = Math.min(mouse.x, cmouse.x);
-  const y = Math.min(mouse.y, cmouse.y);
-  const w = Math.abs(mouse.x - cmouse.x);
-  const h = Math.abs(mouse.y - cmouse.y);
-  shapes.push({ type, x, y, w, h, startX: mouse.x, startY: mouse.y, endX: cmouse.x, endY: cmouse.y });
-}
-
-function drawAllShapes() {
-  ctx.clearRect(0, 0, width, height);
-  shapes.forEach(shape => {
-    drawShape(shape.type, shape.startX, shape.startY, shape.endX, shape.endY);
-  });
-}
-
-function drawShape(type, x1, y1, x2, y2) {
-  ctx.beginPath();
-  if (type === 'rect') {
-    const x = Math.min(x1, x2);
-    const y = Math.min(y1, y2);
-    const w = Math.abs(x1 - x2);
-    const h = Math.abs(y1 - y2);
-    ctx.rect(x, y, w, h);
-  } else if (type === 'line') {
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-  } else if (type === 'ellipse') {
-    const x = (x1 + x2) / 2;
-    const y = (y1 + y2) / 2;
-    const rx = Math.abs(x1 - x2) / 2;
-    const ry = Math.abs(y1 - y2) / 2;
-    ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+  draw(ctx) {
+    ctx.beginPath();
+    if (this.type === 'rect') {
+      const x = Math.min(this.x1, this.x2);
+      const y = Math.min(this.y1, this.y2);
+      const w = Math.abs(this.x1 - this.x2);
+      const h = Math.abs(this.y1 - this.y2);
+      ctx.rect(x, y, w, h);
+    } else if (this.type === 'line') {
+      ctx.moveTo(this.x1, this.y1);
+      ctx.lineTo(this.x2, this.y2);
+    } else if (this.type === 'ellipse') {
+      const x = (this.x1 + this.x2) / 2;
+      const y = (this.y1 + this.y2) / 2;
+      const rx = Math.abs(this.x1 - this.x2) / 2;
+      const ry = Math.abs(this.y1 - this.y2) / 2;
+      ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+    }
+    ctx.stroke();
   }
-  ctx.stroke();
 }
+
+class DrawingCanvas {
+  constructor(canvasId) {
+    this.canvas = document.getElementById(canvasId);
+    this.ctx = this.canvas.getContext('2d');
+    this.shapes = [];
+    this.isDown = false;
+    this.currentShapeType = 'rect';
+    this.startPos = { x: 0, y: 0 };
+    this.endPos = { x: 0, y: 0 };
+    this.initEvents();
+  }
+
+  initEvents() {
+    this.canvas.addEventListener('pointerdown', (e) => this.onPointerDown(e));
+    this.canvas.addEventListener('pointerup', (e) => this.onPointerUp(e));
+    this.canvas.addEventListener('pointermove', (e) => this.onPointerMove(e));
+  }
+
+  onPointerDown(e) {
+    this.isDown = true;
+    this.startPos = { x: e.offsetX, y: e.offsetY };
+  }
+
+  onPointerUp(e) {
+    this.isDown = false;
+    this.endPos = { x: e.offsetX, y: e.offsetY };
+    this.addShape(this.currentShapeType, this.startPos.x, this.startPos.y, this.endPos.x, this.endPos.y);
+    this.drawAllShapes();
+  }
+
+  onPointerMove(e) {
+    if (!this.isDown) return;
+    this.endPos = { x: e.offsetX, y: e.offsetY };
+    this.drawAllShapes();
+    this.drawCurrentShape(this.currentShapeType, this.startPos.x, this.startPos.y, this.endPos.x, this.endPos.y);
+  }
+
+  addShape(type, x1, y1, x2, y2) {
+    this.shapes.push(new Shape(type, x1, y1, x2, y2));
+  }
+
+  drawAllShapes() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.shapes.forEach(shape => shape.draw(this.ctx));
+  }
+
+  drawCurrentShape(type, x1, y1, x2, y2) {
+    const shape = new Shape(type, x1, y1, x2, y2);
+    shape.draw(this.ctx);
+  }
+
+  setCurrentShapeType(type) {
+    this.currentShapeType = type;
+  }
+}
+
+const drawingCanvas = new DrawingCanvas('canvas');
+
+document.getElementById('line').addEventListener('click', () => drawingCanvas.setCurrentShapeType('line'));
+document.getElementById('rect').addEventListener('click', () => drawingCanvas.setCurrentShapeType('rect'));
+document.getElementById('ellipse').addEventListener('click', () => drawingCanvas.setCurrentShapeType('ellipse'));
