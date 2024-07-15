@@ -35,7 +35,7 @@ class Shape {
         this.element.setAttribute("y1", this.y1);
         this.element.setAttribute("x2", this.x2);
         this.element.setAttribute("y2", this.y2);
-      } else if (this.type === 'ellipse") {
+      } else if (this.type === 'ellipse') {
         const cx = (this.x1 + this.x2) / 2;
         const cy = (this.y1 + this.y2) / 2;
         const rx = Math.abs(this.x1 - this.x2) / 2;
