@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SVG Drawing App</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #main {
+      display: flex;
+      height: 100%;
+    }
+
+    #toolbar-c {
+      display: flex;
+      flex-direction: column;
+      justify-content: start;
+      width: 100px;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-right: 1px solid #ccc;
+    }
+
+    #toolbar-c span {
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    #svg-container {
+      flex-grow: 1;
+      overflow: auto;
+      position: relative;
+    }
+
+    svg {
+      border: 1px solid #000;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="main">
+    <div id="toolbar-c">
+      <span id="pointer">POINTER</span>
+      <span id="line">LINE</span>
+      <span id="rect">RECT</span>
+      <span id="ellipse">ELLIPSE</span>
+    </div>
+    <div id="svg-container">
+      <svg id="svg" width="600" height="600"></svg>
+    </div>
+  </div>
+  <script src="draw-svg.js"></script>
+</body>
+</html>
